@@ -3,6 +3,7 @@ package main;
 import processing.core.PApplet;
 import processing.core.PVector;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -14,18 +15,21 @@ public class PropellerDisplay extends PApplet {
     boolean backgroundColor = false;
 
 
+
     public void init() {
         frame.removeNotify( );
         frame.setUndecorated( true );
         frame.addNotify();
         super.init( );
     }
+
     public void setup() {
         size( 1920, 1080, P3D );
         smooth( );
         noCursor( );
 
         int propellerCount = 1200;
+        boolean colorSelect = random( 1 ) > 0.5f ? true : false;
 
         this.propellers = new ArrayList< Propeller >();
         for( int i = 0; i < propellerCount; i++ ) {
@@ -37,7 +41,13 @@ public class PropellerDisplay extends PApplet {
             int currentStep = ( int ) random( steps );
             float speed = 2;//random( 1, 5 );
             float spikyness = random( 1 );
-            int color = this.color( random( 200 ), random( 100 ), random( 100 ), random( 30 ) );
+            //int color = this.color( random( 200 ), random( 100 ), random( 100 ), random( 30 ) );
+            int color = 0;
+            if( colorSelect ) {
+                color = this.color( random( 90 ), random( 30 ) );
+            } else {
+                color = this.color( random( 255 ), random( 100 ), random( 100 ), random( 30 ) );
+            }
             float lineThickness = 1f;
             Propeller p = new Propeller( parent, center, startLength, direction, steps, currentStep, speed, spikyness, color, lineThickness );
             this.propellers.add ( p );
@@ -51,13 +61,13 @@ public class PropellerDisplay extends PApplet {
             p.update();
             p.draw();
         }
-        if( this.propellers.get( 0 ).getCurrentStep() == this.propellers.get( 0 ).getStartStep() ) {
+        if( this.propellers.get( 0 ).getCurrentStep() == this.propellers.get( 0 ).getStartStep() && this.propellers.get( 0 ).turnCounter == 1 ) {
             toggleColorChange( );
+            this.propellers.get( 0 ).turnCounter = 0;
         }
     }
 
     public void toggleColorChange () {
-        System.out.println( "toggled " + System.currentTimeMillis() );
         this.backgroundColor = !this.backgroundColor;
 
         if ( this.backgroundColor ) {
@@ -67,8 +77,16 @@ public class PropellerDisplay extends PApplet {
         }
 
         int radiusUpdateType = ( int ) random( 2 );
+
+        boolean colorSelect = random( 1 ) > 0.5f ? true : false;
+
         for( Propeller p : this.propellers ) {
-            int color = this.color( random( 255 ), random( 100 ), random( 100 ), random( 30 ) );
+            int color = 0;
+            if( colorSelect ) {
+                color = this.color( random( 90 ), random( 30 ) );
+            } else {
+                color = this.color( random( 255 ), random( 100 ), random( 100 ), random( 30 ) );
+            }
             p.setColor( color );
             p.radiusUpdateType = radiusUpdateType;
             p.setStartLength( 100 );

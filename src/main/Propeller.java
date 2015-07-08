@@ -46,7 +46,7 @@ public class Propeller {
     }
 
     public void update() {
-        if( this.currentStep == this.startStep && this.turnCounter % 1 == 0 ) {
+        if( this.currentStep == this.startStep ) {
             //this.parent.toggleColorChange();
             this.turnCounter++;
         }
