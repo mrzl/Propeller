@@ -3,171 +3,93 @@ package main;
 import processing.core.PApplet;
 import processing.core.PVector;
 
+import java.util.ArrayList;
+
 /**
  * Created by mar on 05.07.15.
+ *
+ * Created for the 'LIVE' exhibition at chelsea space (http://www.chelseaspace.org/)
+ * that will run from 4th to the 10th September 2015
  */
-public class Propeller {
+public class Propeller extends PApplet {
 
-    private PropellerDisplay parent;
-    private PVector center;
+    private ArrayList< SinglePropeller > propellers;
+    boolean backgroundColor = false;
 
-
-    private float startLength;
-    private float currentLength;
-    private boolean direction;
-    private float stepSize;
-    private int stepCount;
-    private float startStep;
-    private float currentStep;
-    private float spikyness;
-    private float stepIncrease;
-    private int color;
-    private float lineThickness;
-
-    int turnCounter = 0;
-    int turnChangeIndex = 1;
-
-    public int radiusUpdateType = 0;
-
-    public Propeller( PropellerDisplay parent, PVector centerPos, float startLength, boolean rotationDirection, int steps, int currentStep, float stepIncrease, float spikyness, int color, float lineThickness ) {
-        this.parent = parent;
-        this.center = centerPos;
-        this.direction = rotationDirection;
-        this.startLength = startLength;
-        this.currentLength = startLength;
-        this.stepCount = steps;
-        this.stepSize = ( float ) (Math.PI * 2 / ( float )( steps ));
-        this.stepIncrease = stepIncrease;
-        this.startStep = currentStep;
-        this.currentStep = currentStep;
-        this.spikyness = spikyness;
-        this.color = color;
-        this.lineThickness = lineThickness;
+    public void init() {
+        frame.removeNotify( );
+        frame.setUndecorated( true );
+        frame.addNotify();
+        super.init( );
     }
 
-    public void update() {
-        if( this.currentStep == this.startStep ) {
-            //this.parent.toggleColorChange();
-            this.turnCounter++;
-        }
+    public void setup() {
+        size( 1920, 1080, P3D );
+        smooth( );
+        noCursor( );
 
-        if( this.direction ) {
-            this.currentStep += this.stepIncrease;
-            this.currentStep %= this.stepCount;
-        } else {
-            this.currentStep -= this.stepIncrease;
-            if( this.currentStep < 0 ) {
-                this.currentStep = this.stepCount;
+        int propellerCount = 1200;
+        boolean colorSelect = random( 1 ) > 0.5f ? true : false;
+
+        this.propellers = new ArrayList< SinglePropeller >();
+        for( int i = 0; i < propellerCount; i++ ) {
+            Propeller parent = this;
+            PVector center = new PVector( random( -100, width + 100 ), random( -100, height + 100 ) );
+            float startLength = 150;
+            boolean direction = random( 1 ) > 0.5 ? true : false;
+            int steps = 1000;
+            int currentStep = ( int ) random( steps );
+            float speed = 2;
+            float spikiness = random( 1 );
+            int color = 0;
+            if( colorSelect ) {
+                color = this.color( random( 90 ), random( 30 ) );
+            } else {
+                color = this.color( random( 255 ), random( 100 ), random( 100 ), random( 30 ) );
             }
+            float lineThickness = 1f;
+            SinglePropeller p = new SinglePropeller( parent, center, startLength, direction, steps, currentStep, speed, spikiness, color, lineThickness );
+            this.propellers.add ( p );
         }
 
-        switch( this.radiusUpdateType ) {
-            case 0:
-                this.currentLength += this.parent.random( -this.spikyness, this.spikyness );
-                break;
-            case 1:
-                this.currentLength = this.parent.random( this.startLength );
-                break;
-        }
+        background( 255 );
     }
 
     public void draw() {
-        this.parent.strokeWeight( this.lineThickness );
-        this.parent.stroke( this.color );
-        float _x = ( float ) (this.currentLength * Math.sin( this.currentStep * this.stepSize ) + this.center.x);
-        float _y = ( float ) (this.currentLength * Math.cos( this.currentStep * this.stepSize ) + this.center.y);
-        this.parent.line( this.center.x, this.center.y, _x, _y );
+        for( SinglePropeller p : this.propellers ) {
+            p.update();
+            p.draw();
+        }
+        if( this.propellers.get( 0 ).getCurrentStep() == this.propellers.get( 0 ).getStartStep() && this.propellers.get( 0 ).turnCounter == 1 ) {
+            toggleColorChange( );
+            this.propellers.get( 0 ).turnCounter = 0;
+        }
     }
 
-    public void setColor( int _color ) {
-        this.color = _color;
-    }
+    public void toggleColorChange () {
+        this.backgroundColor = !this.backgroundColor;
 
-    public float getStartLength () {
-        return startLength;
-    }
+        if ( this.backgroundColor ) {
+            this.background( 0 );
+        } else {
+            this.background( 255 );
+        }
 
-    public void setStartLength ( float startLength ) {
-        this.startLength = startLength;
-    }
+        int radiusUpdateType = ( int ) random( 2 );
 
-    public PVector getCenter () {
-        return center;
-    }
+        boolean colorSelect = random( 1 ) > 0.5f ? true : false;
 
-    public void setCenter ( PVector center ) {
-        this.center = center;
-    }
-
-    public float getCurrentLength () {
-        return currentLength;
-    }
-
-    public void setCurrentLength ( float currentLength ) {
-        this.currentLength = currentLength;
-    }
-
-    public boolean isDirection () {
-        return direction;
-    }
-
-    public void setDirection ( boolean direction ) {
-        this.direction = direction;
-    }
-
-    public float getStepSize () {
-        return stepSize;
-    }
-
-    public void setStepSize ( float stepSize ) {
-        this.stepSize = stepSize;
-    }
-
-    public int getStepCount () {
-        return stepCount;
-    }
-
-    public void setStepCount ( int stepCount ) {
-        this.stepCount = stepCount;
-    }
-
-    public float getStartStep () {
-        return startStep;
-    }
-
-    public void setStartStep ( float startStep ) {
-        this.startStep = startStep;
-    }
-
-    public float getCurrentStep () {
-        return currentStep;
-    }
-
-    public void setCurrentStep ( float currentStep ) {
-        this.currentStep = currentStep;
-    }
-
-    public float getSpikyness () {
-        return spikyness;
-    }
-
-    public void setSpikyness ( float spikyness ) {
-        this.spikyness = spikyness;
-    }
-
-    public float getStepIncrease () {
-        return stepIncrease;
-    }
-
-    public void setStepIncrease ( float stepIncrease ) {
-        this.stepIncrease = stepIncrease;
-    }
-
-    public float getLineThickness () {
-        return lineThickness;
-    }
-
-    public void setLineThickness ( float lineThickness ) {
-        this.lineThickness = lineThickness;
+        for( SinglePropeller p : this.propellers ) {
+            int color = 0;
+            if( colorSelect ) {
+                color = this.color( random( 90 ), random( 30 ) );
+            } else {
+                color = this.color( random( 255 ), random( 100 ), random( 100 ), random( 30 ) );
+            }
+            p.setColor( color );
+            p.radiusUpdateType = radiusUpdateType;
+            p.setStartLength( 100 );
+            p.setCurrentLength( 100 );
+        }
     }
 }
